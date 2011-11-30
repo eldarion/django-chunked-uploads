@@ -40,7 +40,7 @@ class Upload(models.Model):
     
     def cloud_path_prefix(self):
         s = str(self.uuid)
-        return os.path.join("videos", s[:2], s[2:4], s[4:6], s)
+        return os.path.join(s[:2], s[2:4], s[4:6], s)
     
     def stitch_chunks(self):
         f = open(os.path.join(settings.MEDIA_ROOT, cloud_path(self, self.filename)), "wb")
