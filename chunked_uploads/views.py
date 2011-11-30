@@ -76,6 +76,7 @@ class UploadView(LoginRequiredMixin, View):
         )
         u.state = Upload.STATE_COMPLETE
         u.save()
+        u.stitch_chunks()
         data = []
         data.append(self._add_status_response(u))
         return HttpResponse(json.dumps(data), mimetype="application/json")
