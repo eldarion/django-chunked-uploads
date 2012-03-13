@@ -7,7 +7,7 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
-from storages.backends.mosso import ThreadSafeCloudFilesStorage
+from cumulus.storage import ThreadSafeCloudFilesStorage
 from uuidfield import UUIDField
 
 
@@ -16,7 +16,9 @@ cloud_storage = ThreadSafeCloudFilesStorage()
 
 def cloud_path(obj, filename):
     if isinstance(obj, Upload):
-        return os.path.join(obj.cloud_path_prefix(), filename).replace("/", "-") # @@@ this replacement is a hack to work around bug in django-storages cloud files backend
+        return os.path.join(obj.cloud_path_prefix(), filename).replace("/", "-")
+        # @@@ this replacement is a hack to work around bug in django-storages cloud files backend
+        # @@@ is this still necessary with cumulus?
     return os.path.join(obj.upload.cloud_path_prefix(), "chunk")
 
 
