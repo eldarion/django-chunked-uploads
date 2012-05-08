@@ -2,7 +2,7 @@ import datetime
 import os
 
 from django.conf import settings
-from django.core.files.uploadedfile import UploadedFile
+from django.core.files.base import ContentFile
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -51,15 +51,17 @@ class Upload(models.Model):
         return os.path.join(s[:2], s[2:4], s[4:6], s)
     
     def stitch_chunks(self):
-        f = open(os.path.join(settings.MEDIA_ROOT, storage_path(self, self.filename)), "wb")
+        fname = os.path.join(settings.MEDIA_ROOT, "tmp-" + storage_path(self, self.filename))
+        f = open(fname, "wb")
         for chunk in self.chunks.all().order_by("pk"):
             f.write(chunk.chunk.read())
         f.close()
-        f = UploadedFile(open(f.name, "rb"))
+        f = ContentFile(open(f.name, "rb").read())
         self.upload.save(self.filename, f)
         self.state = Upload.STATE_COMPLETE
         self.save()
         f.close()
+        os.remove(fname)
     
     def uploaded_size(self):
         return self.chunks.all().aggregate(models.Sum("chunk_size")).get("chunk_size__sum")
