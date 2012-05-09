@@ -17,12 +17,18 @@ else:
     storage = None
 
 
-def storage_path(obj, filename):
-    if isinstance(obj, Upload):
-        return os.path.join(obj.path_prefix(), filename).replace("/", "-")
-        # @@@ this replacement is a hack to work around bug in django-storages cloud files backend
-        # @@@ is this still necessary with cumulus?
-    return os.path.join(obj.upload.path_prefix(), "chunk")
+STORAGE_PATH = getattr(settings, "CHUNKED_UPLOADS_STORAGE_PATH", None)
+if STORAGE_PATH:
+    storage_path = STORAGE_PATH
+else:
+    storage_path = lambda obj, fname: os.path.join("chunked_uploads", obj.uuid, fname)
+
+
+CHUNKS_STORAGE_PATH = getattr(settings, "CHUNKED_UPLOADS_CHUNKS_STORAGE_PATH", None)
+if CHUNKS_STORAGE_PATH:
+    chunks_storage_path = CHUNKS_STORAGE_PATH
+else:
+    chunks_storage_path = lambda obj, fname: os.path.join("chunked_uploads", obj.upload.uuid, "chunks", "chunk")
 
 
 class Upload(models.Model):
@@ -50,13 +56,12 @@ class Upload(models.Model):
     def __unicode__(self):
         return self.upload
     
-    def path_prefix(self):
-        s = str(self.uuid)
-        return os.path.join(s[:2], s[2:4], s[4:6], s)
-    
     def stitch_chunks(self):
-        fname = os.path.join(settings.MEDIA_ROOT, "tmp-" + storage_path(self, self.filename))
         f = open(fname, "wb")
+        fname = os.path.join(
+            self.upload.storage.location,
+            storage_path(self, self.filename + ".tmp")
+        )
         for chunk in self.chunks.all().order_by("pk"):
             f.write(chunk.chunk.read())
         f.close()
@@ -74,7 +79,7 @@ class Upload(models.Model):
 class Chunk(models.Model):
     
     upload = models.ForeignKey(Upload, related_name="chunks")
-    chunk = models.FileField(upload_to=storage_path)
+    chunk = models.FileField(upload_to=chunks_storage_path)
     chunk_size = models.IntegerField()
     created_at = models.DateTimeField(default=datetime.datetime.now)
     
