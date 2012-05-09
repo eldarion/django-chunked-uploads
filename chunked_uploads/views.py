@@ -13,15 +13,15 @@ from django.contrib.auth.decorators import login_required
 from chunked_uploads.models import Upload, Chunk
 
 
-class LoginRequiredMixin(object):
+class LoginRequiredView(View):
     
     @method_decorator(csrf_exempt)
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(LoginRequiredView, self).dispatch(request, *args, **kwargs)
 
 
-class UploadView(LoginRequiredMixin, View):
+class UploadView(LoginRequiredView):
     
     def _add_status_response(self, upload):
         return {
