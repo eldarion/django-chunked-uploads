@@ -49,7 +49,7 @@ class Upload(models.Model):
     uuid = UUIDField(auto=True, unique=True)
     filename = models.CharField(max_length=250)
     filesize = models.IntegerField()
-    upload = models.FileField(storage=storage, upload_to=storage_path)
+    upload = models.FileField(max_length=250, storage=storage, upload_to=storage_path)
     md5 = models.CharField(max_length=32, blank=True)
     state = models.IntegerField(choices=STATE_CHOICES, default=STATE_UPLOADING)
     created_at = models.DateTimeField(default=datetime.datetime.now)
