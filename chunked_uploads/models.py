@@ -55,7 +55,9 @@ class Upload(models.Model):
     created_at = models.DateTimeField(default=datetime.datetime.now)
     
     def __unicode__(self):
-        return self.upload
+        return u"<%s - %s bytes - pk: %s, uuid: %s, md5: %s>" % (
+            self.filename, self.filesize, self.pk, self.uuid, self.md5
+        )
     
     def stitch_chunks(self):
         f = open(fname, "wb")
@@ -85,5 +87,7 @@ class Chunk(models.Model):
     created_at = models.DateTimeField(default=datetime.datetime.now)
     
     def __unicode__(self):
-        return self.chunk
+        return u"<Chunk pk=%s, size=%s, upload=(%s, %s)>" % (
+            self.pk, self.chunk_size, self.upload.pk, self.upload.uuid
+        )
 
