@@ -1,8 +1,11 @@
 import datetime
+import errno
+import hashlib
 import os
 
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
+from django.core.files.utils import FileProxyMixin
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -29,6 +32,24 @@ if CHUNKS_STORAGE_PATH:
     chunks_storage_path = CHUNKS_STORAGE_PATH
 else:
     chunks_storage_path = lambda obj, fname: os.path.join("chunked_uploads", obj.upload.uuid, "chunks", "chunk")
+
+
+
+class File(FileProxyMixin):
+    """
+    This is needed as there was a bug pre-1.4 django with getting
+    size off of a file object
+    """
+    def __init__(self, file):
+        self.file = file
+    
+    @property
+    def size(self):
+        pos = self.file.tell()
+        self.file.seek(0, os.SEEK_END)
+        size = self.file.tell()
+        self.file.seek(pos)
+        return size
 
 
 class Upload(models.Model):
@@ -60,19 +81,34 @@ class Upload(models.Model):
         )
     
     def stitch_chunks(self):
-        f = open(fname, "wb")
         fname = os.path.join(
             self.upload.storage.location,
             storage_path(self, self.filename + ".tmp")
         )
+        try:
+            os.makedirs(os.path.dirname(fname))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+        fp = open(fname, "wb")
+        m = hashlib.md5()
         for chunk in self.chunks.all().order_by("pk"):
-            f.write(chunk.chunk.read())
-        f.close()
-        f = ContentFile(open(f.name, "rb").read())
-        self.upload.save(self.filename, f)
-        self.state = Upload.STATE_COMPLETE
+            bytes = chunk.chunk.read()
+            m.update(bytes)
+            fp.write(bytes)
+        fp.close()
+        f = File(open(fname, "rb"))
+        self.upload.save(
+            name=fname.replace(".tmp", ""),
+            content=UploadedFile(
+                file=f,
+                name=fname.replace(".tmp", ""),
+                size=f.size
+            )
+        )
+        self.md5 = m.hexdigest()
+        self.state = Upload.STATE_STITCHED
         self.save()
-        f.close()
         os.remove(fname)
     
     def uploaded_size(self):
