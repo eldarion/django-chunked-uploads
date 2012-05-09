@@ -2,7 +2,7 @@ import datetime
 import os
 
 from django.conf import settings
-from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import UploadedFile
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -50,6 +50,7 @@ class Upload(models.Model):
     filename = models.CharField(max_length=250)
     filesize = models.IntegerField()
     upload = models.FileField(storage=storage, upload_to=storage_path)
+    md5 = models.CharField(max_length=32, blank=True)
     state = models.IntegerField(choices=STATE_CHOICES, default=STATE_UPLOADING)
     created_at = models.DateTimeField(default=datetime.datetime.now)
     
