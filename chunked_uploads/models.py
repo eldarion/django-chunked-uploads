@@ -29,10 +29,14 @@ class Upload(models.Model):
     
     STATE_UPLOADING = 1
     STATE_COMPLETE = 2
+    STATE_STITCHED = 3
+    STATE_UPLOAD_ERROR = 4
     
     STATE_CHOICES = [
         (STATE_UPLOADING, "Uploading"),
-        (STATE_COMPLETE, "Complete")
+        (STATE_COMPLETE, "Complete - Chunks Uploaded"),
+        (STATE_STITCHED, "Complete - Stitched"),
+        (STATE_UPLOAD_ERROR, "Upload Error")
     ]
     
     user = models.ForeignKey(User, related_name="uploads")

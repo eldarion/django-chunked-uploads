@@ -21,6 +21,19 @@ class LoginRequiredView(View):
         return super(LoginRequiredView, self).dispatch(request, *args, **kwargs)
 
 
+@csrf_exempt
+def complete_upload(request, uuid):
+    up = get_object_or_404(Upload, uuid=uuid)
+    if up.filesize == up.uploaded_size():
+        up.state = Upload.STATE_COMPLETE
+    else:
+        up.state = Upload.STATE_UPLOAD_ERROR
+    up.save()
+    if "upload-uuid" in request.session:
+        del request.session["upload-uuid"]
+    return HttpResponse()
+
+
 class UploadView(LoginRequiredView):
     
     def _add_status_response(self, upload):
@@ -40,8 +53,14 @@ class UploadView(LoginRequiredView):
         f = ContentFile(self.request.raw_post_data)
         
         if "upload-uuid" in self.request.session:
-            u = Upload.objects.get(uuid=self.request.session["upload-uuid"])
-        if "upload-uuid" not in self.request.session or u.state == Upload.STATE_COMPLETE:
+            try:
+                u = Upload.objects.get(uuid=self.request.session["upload-uuid"])
+                if u.state in [Upload.STATE_COMPLETE, Upload.STATE_UPLOAD_ERROR]:
+                    del self.request.session["upload-uuid"]
+            except Upload.DoesNotExist:
+                del self.request.session["upload-uuid"]
+        
+        if "upload-uuid" not in self.request.session:
             u = Upload.objects.create(
                 user=self.request.user,
                 filename=self.request.META["HTTP_X_FILE_NAME"],
@@ -53,10 +72,6 @@ class UploadView(LoginRequiredView):
         c.chunk.save(u.filename, f, save=False)
         c.chunk_size = c.chunk.size
         c.save()
-        
-        if u.filesize == u.uploaded_size():
-            u.state = Upload.STATE_COMPLETE
-            u.save()
         
         data = []
         data.append(self._add_status_response(u))
