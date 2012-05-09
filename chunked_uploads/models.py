@@ -76,7 +76,9 @@ class Upload(models.Model):
         os.remove(fname)
     
     def uploaded_size(self):
-        return self.chunks.all().aggregate(models.Sum("chunk_size")).get("chunk_size__sum")
+        return self.chunks.all().aggregate(
+            models.Sum("chunk_size")
+        ).get("chunk_size__sum")
 
 
 class Chunk(models.Model):
