@@ -21,8 +21,6 @@ $(function(){
                         'dataType': "json",
                         'url': $upload_done_url.replace('abcdef0123456789', uuid),
                         'success': function(data, status, xhr) {
-                            console.log(data);
-                            console.log(data.url, $upload_form_target);
                             $upload_form_target.val(data.url);
                         }
                     });
