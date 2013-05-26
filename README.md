@@ -15,6 +15,10 @@ This is an app for your Django project to enable large uploads using the Blob AP
             'chunked_uploads',
         )
 
+* Run syncdb to set up operational tables
+        
+        python manage.py syncdb
+
 ## Usage
 
 * Ensure the template your load the form in has jQuery / jQuery.ui
