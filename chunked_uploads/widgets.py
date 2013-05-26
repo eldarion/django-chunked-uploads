@@ -8,7 +8,9 @@ from django.utils.encoding import force_text
 
 class ChunkedFileInput(HiddenInput):
     class Media:
-        js = (  'chunked_uploads/js/jquery.iframe-transport.js',
+        js = (  
+                'chunked_uploads/js/jquery.ui.widget.js',
+                'chunked_uploads/js/jquery.iframe-transport.js',
                 'chunked_uploads/js/jquery.fileupload.js',
                 'chunked_uploads/js/progress.js',
                 'chunked_uploads/js/app.js')
