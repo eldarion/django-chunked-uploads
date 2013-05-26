@@ -43,6 +43,7 @@ class ChunkedFileInput(HiddenInput):
         template = self.template
         if value:
             template = self.template_with_initial
-            ctx['initial'] = format_html('<a href="{1}">{1}</a>', value, force_text(value)) 
+            url = value.storage.url(value)
+            ctx['initial'] = format_html('<a href="{1}">{1}</a>', value, force_text(url)) 
 
         return mark_safe(template % ctx)
