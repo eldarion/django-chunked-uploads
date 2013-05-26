@@ -5,31 +5,26 @@ This is an app for your Django project to enable large uploads using the Blob AP
 ## Installation
 
 * To install
-
     python setup.py install
 
 * Add ``'chunked_uploads'`` to your ``INSTALLED_APPS`` setting
-
     INSTALLED_APPS = (
         # other apps
-        "chunked_uploads",
+        'chunked_uploads',
     )
 
 ## Usage
 
 * Ensure the template your load the form in has jQuery / jQuery.ui
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 
 * Set up your model...
     from chunked_uploads.fields import ChunkedFileField
-
     class MyModel(...):
         file_field = ChunkedFileField()
 
 * Register uploader urls...
-
     urlpatterns = patterns('',
         url(r'uploader/', include('chunked_uploads.urls')),
         ...
