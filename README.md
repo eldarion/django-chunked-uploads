@@ -6,5 +6,5 @@ This is an app for your Django project to enable large uploads using the Blob AP
 ## Changelist
 
 ### 0.4
-    * adds proper requirements
-    * large refactor to provide a model field that mimics FileField but relies, by default, on a widgetized chunked uploader
+  * adds proper requirements
+  * large refactor to provide a model field that mimics FileField but relies, by default, on a widgetized chunked uploader
