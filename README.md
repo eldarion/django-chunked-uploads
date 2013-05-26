@@ -4,11 +4,11 @@ This is an app for your Django project to enable large uploads using the Blob AP
 
 ## Installation
 
-* To install ::
+* To install
 
     python setup.py install
 
-* Add ``''`` to your ``INSTALLED_APPS`` setting::
+* Add ``'chunked_uploads'`` to your ``INSTALLED_APPS`` setting
 
     INSTALLED_APPS = (
         # other apps
