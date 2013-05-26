@@ -66,9 +66,18 @@ var showProgress = function(el) {
     progressTimer = window.setInterval(intervalHandler, interval);
 };
 
+/*
 var progressWidget = $("<form />").append(
     $("<input />").attr("type", "file").attr("name", "files").attr("multiple", "multiple")
 ).append(
+    $("<div />").addClass("fileinfo")
+).append(
+    $("<div />").addClass("progressbar")
+).append(
+    $("<div />").addClass("fileupload-progress")
+);*/
+
+var progressWidget = $("<div />").append(
     $("<div />").addClass("fileinfo")
 ).append(
     $("<div />").addClass("progressbar")

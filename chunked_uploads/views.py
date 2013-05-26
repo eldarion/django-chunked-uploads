@@ -25,13 +25,17 @@ class LoginRequiredView(View):
 def complete_upload(request, uuid):
     up = get_object_or_404(Upload, uuid=uuid)
     if up.filesize == up.uploaded_size():
+        up.stitch_chunks()
         up.state = Upload.STATE_COMPLETE
     else:
         up.state = Upload.STATE_UPLOAD_ERROR
     up.save()
     if "upload-uuid" in request.session:
         del request.session["upload-uuid"]
-    return HttpResponse()
+
+    res = {'url': up.upload.name, 'uuid': u'%s' % up.uuid}
+
+    return HttpResponse(json.dumps(res))
 
 
 class UploadView(LoginRequiredView):
