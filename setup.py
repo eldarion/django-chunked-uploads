@@ -134,7 +134,7 @@ setup(
     ],
     zip_safe=False,
     install_requires = [
-        'uuidfield',
+        'django-uuidfield',
         'django'
     ]
 )
