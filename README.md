@@ -44,6 +44,7 @@ This is an app for your Django project to enable large uploads using the Blob AP
 ## Todo
 * Currently upload\_to/path is not customizable
 * allow for custom class to be used for Uploads 
+* Support "Clearable" style file widget for blank=True fiels
 
 
 ## Changelist
