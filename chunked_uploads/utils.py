@@ -4,7 +4,7 @@ from chunked_uploads.models import Upload, Chunk
 def handle_upload(uploaded_file, who):
     """
     Expects to handle an individual file from request.FILES[name]
-    
+
     Returns an Upload object
     """
     u = Upload.objects.create(

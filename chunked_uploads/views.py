@@ -14,7 +14,7 @@ from chunked_uploads.models import Upload, Chunk
 
 
 class LoginRequiredView(View):
-    
+
     @method_decorator(csrf_exempt)
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -35,7 +35,7 @@ def complete_upload(request, uuid):
 
 
 class UploadView(LoginRequiredView):
-    
+
     def _add_status_response(self, upload):
         return {
             "name": upload.filename,
@@ -48,10 +48,10 @@ class UploadView(LoginRequiredView):
             "delete_type": "DELETE",
             "upload_uuid": str(upload.uuid)
         }
-    
+
     def handle_chunk(self):
         f = ContentFile(self.request.raw_post_data)
-        
+
         if "upload-uuid" in self.request.session:
             try:
                 u = Upload.objects.get(uuid=self.request.session["upload-uuid"])
@@ -59,7 +59,7 @@ class UploadView(LoginRequiredView):
                     del self.request.session["upload-uuid"]
             except Upload.DoesNotExist:
                 del self.request.session["upload-uuid"]
-        
+
         if "upload-uuid" not in self.request.session:
             u = Upload.objects.create(
                 user=self.request.user,
@@ -67,17 +67,17 @@ class UploadView(LoginRequiredView):
                 filesize=self.request.META["HTTP_X_FILE_SIZE"]
             )
             self.request.session["upload-uuid"] = str(u.uuid)
-        
+
         c = Chunk(upload=u)
         c.chunk.save(u.filename, f, save=False)
         c.chunk_size = c.chunk.size
         c.save()
-        
+
         data = []
         data.append(self._add_status_response(u))
-        
+
         return HttpResponse(json.dumps(data), mimetype="application/json")
-    
+
     def handle_whole(self):
         f = self.request.FILES.get("file")
         u = Upload.objects.create(
@@ -95,16 +95,16 @@ class UploadView(LoginRequiredView):
         data = []
         data.append(self._add_status_response(u))
         return HttpResponse(json.dumps(data), mimetype="application/json")
-    
+
     def get(self, request, *args, **kwargs):
         return HttpResponse(json.dumps([{}]))
-    
+
     def post(self, request, *args, **kwargs):
         if request.META.get("HTTP_X_FILE_NAME"):
             return self.handle_chunk()
         else:
             return self.handle_whole()
-    
+
     def delete(self, request, *args, **kwargs):
         upload = get_object_or_404(Upload, pk=kwargs.get("pk"))
         upload.delete()  # Make sure this cascade deletes it's chunks
